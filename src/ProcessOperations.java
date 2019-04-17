@@ -6,11 +6,56 @@ import java.util.Scanner;
 
 public class ProcessOperations {
 
-    private static HashMap<String, ProcessInfo> processMap;
+    private static HashMap<Integer, ProcessInfo> runningProcessesMap;
+    private static HashMap<Integer, ProcessInfo> monitoringProcesses;
+
+    public String generateProcessList(){
+
+        this.updateRunningProcessList();
+        String text = "=============Processes that are running on the system=============\n";
+        text += "=============Scroll down to see the complete list or to go back=============\n\n";
+
+        for(ProcessInfo aProcess : runningProcessesMap.values()){
+            text += "Process Name: " + aProcess.getImageName() + "\nPID: " + aProcess.getPid() + "\n\n";
+        }
+        text += "=============End of list=============";
+
+        return text;
+    }
+
+    public boolean addProcessToMonitor(int pid){
+
+        this.updateRunningProcessList();
+
+        if(this.runningProcessesMap != null && !this.runningProcessesMap.containsKey(pid)){
+            return false;
+        }
+
+        String imageName = this.getRunningProcessesMap().get(pid).getImageName();
+        String sessionName = this.getRunningProcessesMap().get(pid).getSessionName();
+        int sessionNum = this.getRunningProcessesMap().get(pid).getSessionNum();
+        int memUsage = this.getRunningProcessesMap().get(pid).getMemUsage();
+
+        if(this.monitoringProcesses == null){
+            this.monitoringProcesses = new HashMap<>();
+        }
+        this.monitoringProcesses.put(pid, new ProcessInfo(imageName, pid, sessionName, sessionNum, memUsage));
+
+        return true;
+    }
+
+    public boolean removeProcessToMonitor(int pid){
+
+        if(this.monitoringProcesses != null && this.monitoringProcesses.containsKey(pid)){
+            this.monitoringProcesses.remove(pid);
+            return true;
+        }
+        return false;
+    }
 
     private synchronized void updateRunningProcessList(){
 
-        this.processMap = new HashMap<>();
+        this.runningProcessesMap = new HashMap<>();
         ArrayList<String> lines = new ArrayList<>();
         Process runningProcesses;
         Scanner reader;
@@ -35,7 +80,7 @@ public class ProcessOperations {
                 break;
             }
         }
-        int totalNum = 0;
+
         for(int i = 0, indexOf; reader.hasNextLine(); i++){
             lines.add(reader.nextLine());
 
@@ -59,27 +104,16 @@ public class ProcessOperations {
             memUsage = Integer.parseInt(lines.get(i).substring(0, indexOf).replace(",", ""));
             lines.set(i, lines.get(i).substring(indexOf).trim());
 
-            this.processMap.put(imageName, new ProcessInfo(imageName, pid, sessionName, sessionNum, memUsage));
-            totalNum++;
+            this.runningProcessesMap.put(pid, new ProcessInfo(imageName, pid, sessionName, sessionNum, memUsage));
         }
-        System.out.println(totalNum);
         reader.close();
     }
 
-    public String generateProcessList(){
-
-        this.updateRunningProcessList();
-        String text = "=============Running System ProcessMonitorApp=============\n";
-
-        for(ProcessInfo entry : processMap.values()){
-            text += "Process Name: " + entry.getImageName() + "\nPID: " + entry.getPid() + "\n\n";
-        }
-        text += "=============End of list=============";
-
-        return text;
+    public static HashMap<Integer, ProcessInfo> getRunningProcessesMap() {
+        return runningProcessesMap;
     }
 
-    public HashMap<String, ProcessInfo> getProcessMap() {
-        return this.processMap;
+    public static HashMap<Integer, ProcessInfo> getMonitoringProcesses() {
+        return monitoringProcesses;
     }
 }

@@ -3,7 +3,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -17,48 +19,135 @@ public class ProcessMonitorApp extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception
+    public void start(Stage primaryStage)
     {
-        int windowWidth = 800;
-        int windowHeight = 500;
-        int hGap = 50;
-        int vGap = 50;
+        final int WINDOW_WIDTH = 800;
+        final int WINDOW_HEIGHT = 500;
+        final int SPACING_BETWEEN_ELEMENTS = 10;
+        final int BUTTON_WIDTH = 320;
 
         final Button runningProcessesButton = new Button("View running processes");
-        final Button button2 = new Button("Button2");
-        final Button button3 = new Button("Button3");
-        final Button button4 = new Button("Button4");
+        final Button selectProcessToMonitorButton = new Button("Select Process to Start Monitoring");
+        final Button removeProcessToMonitorButton = new Button("Select Process to Stop Monitoring");
+        final Button displayCpuAndMemoryButton = new Button("Display CPU and Memory Usage of Selected Processes");
         final Button backButton = new Button("Back");
+        final Button exitButton = new Button("Exit");
+        final Button okButton = new Button("Ok");
+
+        final String ERROR_ALERT_BOX_TITLE = "Error!";
+        final String SUCCESS_ALERT_BOX_TITLE = "Sucess!";
+
+        runningProcessesButton.setMinWidth(BUTTON_WIDTH);
+        selectProcessToMonitorButton.setMinWidth(BUTTON_WIDTH);
+        removeProcessToMonitorButton.setMinWidth(BUTTON_WIDTH);
+        displayCpuAndMemoryButton.setMinWidth(BUTTON_WIDTH);
+        backButton.setMinWidth(BUTTON_WIDTH);
+        exitButton.setMinWidth(BUTTON_WIDTH);
+        okButton.setMinWidth(BUTTON_WIDTH);
 
         Scene mainWindowScene;
-        Scene runningProcessesScene;
 
         primaryStage.setTitle("Process Monitor Operations");
 
         GridPane mainLayout = new GridPane();
         mainLayout.add(runningProcessesButton, 0, 0);
-        mainLayout.add(button2, 1, 0);
-        mainLayout.add(button3, 0, 1);
-        mainLayout.add(button4, 1, 1);
+        mainLayout.add(selectProcessToMonitorButton, 1, 0);
+        mainLayout.add(removeProcessToMonitorButton, 0, 1);
+        mainLayout.add(displayCpuAndMemoryButton, 1, 1);
+        mainLayout.add(exitButton, 1, 2);
         mainLayout.setAlignment(Pos.CENTER);
-        mainLayout.setHgap(hGap);
-        mainLayout.setVgap(vGap);
+        mainLayout.setHgap(SPACING_BETWEEN_ELEMENTS);
+        mainLayout.setVgap(SPACING_BETWEEN_ELEMENTS);
 
-        mainWindowScene = new Scene(mainLayout, windowWidth, windowHeight);
+        mainWindowScene = new Scene(mainLayout, WINDOW_WIDTH, WINDOW_HEIGHT);
         primaryStage.setScene(mainWindowScene);
-        Text runningProcessesText = new Text(p.generateProcessList());
-        GridPane gridPane2 = new GridPane();
         backButton.setOnAction(goBack -> primaryStage.setScene(mainWindowScene));
 
-        gridPane2.add(runningProcessesText, 0 ,0);
-        gridPane2.add(backButton, 0, 1);
+        runningProcessesButton.setOnAction(e -> {
+            Text runningProcessesText = new Text(p.generateProcessList());
+            GridPane gridPane2 = new GridPane();
+            gridPane2.add(runningProcessesText, 0 ,0);
+            gridPane2.add(backButton, 0, 1);
+            ScrollPane processesScrollPane = new ScrollPane(gridPane2);
+            processesScrollPane.setVvalue(Byte.MIN_VALUE);
+            Scene runningProcessesScene = new Scene(processesScrollPane, WINDOW_WIDTH, WINDOW_HEIGHT);
+            primaryStage.setScene(runningProcessesScene);
+        });
 
-        ScrollPane processesScrollPane = new ScrollPane(gridPane2);
-        processesScrollPane.setVvalue(Byte.MIN_VALUE);
+        Stage exitStage = (Stage) exitButton.getScene().getWindow();
+        exitButton.setOnAction(e -> exitStage.close());
+        TextField userInput = new TextField();
+        userInput.setMaxWidth(BUTTON_WIDTH);
 
-        runningProcessesScene = new Scene(processesScrollPane, windowWidth, windowHeight);
-        runningProcessesButton.setOnAction(e -> primaryStage.setScene(runningProcessesScene));
+        selectProcessToMonitorButton.setOnAction(e -> {
+            okButton.setOnAction(c -> {
+                if(!isInt(userInput.getText())){
+                    String errorMessage = "Error: the input \"" + userInput.getText() + "\" is not a number." +
+                            "\nPlease enter a valid number.";
+                    AlertBox.displayAlertBox(ERROR_ALERT_BOX_TITLE, errorMessage, WINDOW_HEIGHT/2, WINDOW_WIDTH/2);
+                }
+                else{
+                    if(p.addProcessToMonitor(Integer.parseInt(userInput.getText()))){
+                        String successMessage = "The PID \"" + userInput.getText() + "\" has successfully been\nadded to " +
+                                "the list of processes being monitored.";
+                        AlertBox.displayAlertBox(SUCCESS_ALERT_BOX_TITLE, successMessage, WINDOW_HEIGHT/2, WINDOW_WIDTH/2);
+                    }
+                    else{
+                        String errorMessage = "Error: the PID \"" + userInput.getText() + "\" cannot be monitored. Please" +
+                                "\nmake sure that the PID is currently running.\nYou can verify the running processes\n" +
+                                "through the main program\nwindow by clicking on \"View running processes\".";
+                        AlertBox.displayAlertBox(ERROR_ALERT_BOX_TITLE, errorMessage, WINDOW_HEIGHT/2, WINDOW_WIDTH/2);
+                    }
+                }
+            });
+            VBox layout = new VBox(SPACING_BETWEEN_ELEMENTS);
+            Text text = new Text("Enter a process ID to start monitoring: ");
+            layout.getChildren().setAll(text, userInput, okButton, backButton);
+            layout.setAlignment(Pos.CENTER);
+            Scene addMonitorScene = new Scene(layout, WINDOW_WIDTH, WINDOW_HEIGHT);
+            primaryStage.setScene(addMonitorScene);
+        });
+
+        removeProcessToMonitorButton.setOnAction(e -> {
+            okButton.setOnAction(c -> {
+                if(!isInt(userInput.getText())){
+                    String errorMessage = "Error: the input \"" + userInput.getText() + "\" is not a number." +
+                            "\nPlease enter a valid number.";
+                    AlertBox.displayAlertBox(ERROR_ALERT_BOX_TITLE, errorMessage, WINDOW_HEIGHT/2, WINDOW_WIDTH/2);
+                }
+                else{
+                    if(p.removeProcessToMonitor(Integer.parseInt(userInput.getText()))){
+                        String successMessage = "The PID \"" + userInput.getText() + "\" has successfully been\nremoved from " +
+                                "the list of processes being monitored.";
+                        AlertBox.displayAlertBox(SUCCESS_ALERT_BOX_TITLE, successMessage, WINDOW_HEIGHT/2, WINDOW_WIDTH/2);
+                    }
+                    else{
+                        String errorMessage = "Error: the PID \"" + userInput.getText() + "\" cannot be removed. Please" +
+                                "\nmake sure that the PID is currently being\nmonitored. You can verify the processes " +
+                                "being monitored\nby clicking on \"Display CPU and Memory Usage of Selected Processes\"\n" +
+                                "through the main program window.";
+                        AlertBox.displayAlertBox(ERROR_ALERT_BOX_TITLE, errorMessage, WINDOW_HEIGHT/2, WINDOW_WIDTH/2);
+                    }
+                }
+            });
+            VBox layout = new VBox(SPACING_BETWEEN_ELEMENTS);
+            Text text = new Text("Enter a process ID to stop monitoring: ");
+            layout.getChildren().setAll(text, userInput, okButton, backButton);
+            layout.setAlignment(Pos.CENTER);
+            Scene addMonitorScene = new Scene(layout, WINDOW_WIDTH, WINDOW_HEIGHT);
+            primaryStage.setScene(addMonitorScene);
+        });
 
         primaryStage.show();
+    }
+
+    public boolean isInt(String input){
+        try{
+            Integer.parseInt(input);
+            return true;
+        }
+        catch(NumberFormatException e){
+            return false;
+        }
     }
 }
