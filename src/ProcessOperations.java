@@ -69,10 +69,10 @@ public class ProcessOperations {
         for(ProcessInfo aProcess : this.monitoringProcesses.values()){
 
             Scanner reader;
-            Process runningProcesses;
+            Process processToUpdate;
             try{
-                runningProcesses = Runtime.getRuntime().exec("tasklist /nh /fi \"pid eq " + aProcess.getPid() + "\"");
-                reader = new Scanner(new InputStreamReader(runningProcesses.getInputStream()));
+                processToUpdate = Runtime.getRuntime().exec("tasklist /nh /fi \"pid eq " + aProcess.getPid() + "\"");
+                reader = new Scanner(new InputStreamReader(processToUpdate.getInputStream()));
             }
             catch(IOException e){
                 AlertBox.displayAlertBox("Error!", "Error when processing command.", 250, 400);

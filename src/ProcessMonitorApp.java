@@ -39,7 +39,7 @@ public class ProcessMonitorApp extends Application {
         final Button okButton = new Button("Ok");
 
         final String ERROR_ALERT_BOX_TITLE = "Error!";
-        final String SUCCESS_ALERT_BOX_TITLE = "Sucess!";
+        final String SUCCESS_ALERT_BOX_TITLE = "Success!";
 
         runningProcessesButton.setMinWidth(BUTTON_WIDTH);
         selectProcessToMonitorButton.setMinWidth(BUTTON_WIDTH);
@@ -69,10 +69,10 @@ public class ProcessMonitorApp extends Application {
 
         runningProcessesButton.setOnAction(e -> {
             Text runningProcessesText = new Text(p.generateProcessList());
-            GridPane gridPane2 = new GridPane();
-            gridPane2.add(runningProcessesText, 0 ,0);
-            gridPane2.add(backButton, 0, 1);
-            ScrollPane processesScrollPane = new ScrollPane(gridPane2);
+            GridPane runningProcessesGrid = new GridPane();
+            runningProcessesGrid.add(runningProcessesText, 0 ,0);
+            runningProcessesGrid.add(backButton, 0, 1);
+            ScrollPane processesScrollPane = new ScrollPane(runningProcessesGrid);
             processesScrollPane.setVvalue(Byte.MIN_VALUE);
             Scene runningProcessesScene = new Scene(processesScrollPane, WINDOW_WIDTH, WINDOW_HEIGHT);
             primaryStage.setScene(runningProcessesScene);
