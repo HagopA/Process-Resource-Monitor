@@ -1,3 +1,6 @@
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -8,6 +11,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class ProcessMonitorApp extends Application {
 
@@ -136,6 +140,32 @@ public class ProcessMonitorApp extends Application {
             layout.setAlignment(Pos.CENTER);
             Scene addMonitorScene = new Scene(layout, WINDOW_WIDTH, WINDOW_HEIGHT);
             primaryStage.setScene(addMonitorScene);
+        });
+
+        displayCpuAndMemoryButton.setOnAction(e -> {
+            Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), c -> {
+                Text displayText = new Text();
+                GridPane cpuAndMemUsageGrid = new GridPane();
+                cpuAndMemUsageGrid.add(displayText, 0 ,0);
+                cpuAndMemUsageGrid.add(backButton, 0, 1);
+                ScrollPane processesScrollPane = new ScrollPane(cpuAndMemUsageGrid);
+                Scene runningProcessesScene = new Scene(processesScrollPane, WINDOW_WIDTH, WINDOW_HEIGHT);
+                String appendText = "";
+                for(ProcessInfo process : p.updateProcessUsage().values()){
+                    appendText += "Process Name: " + process.getImageName() + "\nPID: " + process.getPid() + "\n" +
+                            "Memory Usage: " + process.getMemUsage() + " K\n\n";
+                }
+                displayText.setText(appendText);
+                primaryStage.setScene(runningProcessesScene);
+            }));
+
+            timeline.setCycleCount(Animation.INDEFINITE);
+            timeline.play();
+
+            backButton.setOnAction(s -> {
+                timeline.stop();
+                primaryStage.setScene(mainWindowScene);
+            });
         });
 
         primaryStage.show();
