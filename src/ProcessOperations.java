@@ -60,24 +60,23 @@ public class ProcessOperations {
     public HashMap<Integer, ProcessInfo> updateProcessUsage(){
 
         ArrayList<String> lines = new ArrayList<>();
-        String imageName;
         int pid;
-        String sessionName;
-        int sessionNum;
         int memUsage;
+        int cpuUsage;
 
         for(ProcessInfo aProcess : this.monitoringProcesses.values()){
 
             Scanner reader;
             Process processToUpdate;
-            Process cpuUsage;
+            Process cpuUsageProcess;
             Scanner cpuUsageReader;
+
             try{
                 processToUpdate = Runtime.getRuntime().exec("tasklist /nh /fi \"pid eq " + aProcess.getPid() + "\"");
-                cpuUsage = Runtime.getRuntime().exec("wmic path win32_perfformatteddata_perfproc_" +
+                cpuUsageProcess = Runtime.getRuntime().exec("wmic path win32_perfformatteddata_perfproc_" +
                         "process where (IDProcess = '" + aProcess.getPid() + "') get PercentProcessorTime /format:list");
                 reader = new Scanner(new InputStreamReader(processToUpdate.getInputStream()));
-                cpuUsageReader = new Scanner(new InputStreamReader(cpuUsage.getInputStream()));
+                cpuUsageReader = new Scanner(new InputStreamReader(cpuUsageProcess.getInputStream()));
             }
             catch(IOException e){
                 AlertBox.displayAlertBox("Error!", "Error when processing command.", 250, 400);
@@ -92,13 +91,13 @@ public class ProcessOperations {
                 }
             }
 
-            for(int indexOf; reader.hasNextLine();) {
+            while(reader.hasNextLine()) {
                 lines.add(reader.nextLine());
+                int indexOf;
 
                 for(int k = 0; k < lines.size(); k++){
                     if(lines.get(k).length() > 1){
                         indexOf = lines.get(k).indexOf("  ");
-                        imageName = lines.get(k).substring(0, indexOf);
                         lines.set(k, lines.get(k).substring(indexOf).trim());
 
                         indexOf = lines.get(k).indexOf(" ");
@@ -106,19 +105,19 @@ public class ProcessOperations {
                         lines.set(k, lines.get(k).substring(indexOf).trim());
 
                         indexOf = lines.get(k).indexOf("  ");
-                        sessionName = lines.get(k).substring(0, indexOf);
                         lines.set(k, lines.get(k).substring(indexOf).trim());
 
                         indexOf = lines.get(k).indexOf("  ");
-                        sessionNum = Integer.parseInt(lines.get(k).substring(0, indexOf));
                         lines.set(k, lines.get(k).substring(indexOf).trim());
 
                         indexOf = lines.get(k).indexOf(" ");
                         memUsage = Integer.parseInt(lines.get(k).substring(0, indexOf).replace(",", ""));
                         lines.set(k, lines.get(k).substring(indexOf).trim());
 
+                        cpuUsage = Integer.parseInt(pidCpuUsage.substring(pidCpuUsage.indexOf("=")+1));
+
                         this.monitoringProcesses.get(pid).setMemUsage(memUsage);
-                        this.monitoringProcesses.get(pid).setPercentCpuUsage(Integer.parseInt(pidCpuUsage.substring(pidCpuUsage.indexOf("=")+1)));
+                        this.monitoringProcesses.get(pid).setPercentCpuUsage(cpuUsage);
                     }
                 }
             }
@@ -128,7 +127,7 @@ public class ProcessOperations {
         return monitoringProcesses;
     }
 
-    private synchronized void updateRunningProcessList(){
+    private void updateRunningProcessList(){
 
         this.runningProcessesMap = new HashMap<>();
         ArrayList<String> lines = new ArrayList<>();
