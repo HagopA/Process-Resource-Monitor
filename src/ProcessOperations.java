@@ -70,14 +70,28 @@ public class ProcessOperations {
 
             Scanner reader;
             Process processToUpdate;
+            Process cpuUsage;
+            Scanner cpuUsageReader;
             try{
                 processToUpdate = Runtime.getRuntime().exec("tasklist /nh /fi \"pid eq " + aProcess.getPid() + "\"");
+                cpuUsage = Runtime.getRuntime().exec("wmic path win32_perfformatteddata_perfproc_" +
+                        "process where (IDProcess = '" + aProcess.getPid() + "') get PercentProcessorTime /format:list");
                 reader = new Scanner(new InputStreamReader(processToUpdate.getInputStream()));
+                cpuUsageReader = new Scanner(new InputStreamReader(cpuUsage.getInputStream()));
             }
             catch(IOException e){
                 AlertBox.displayAlertBox("Error!", "Error when processing command.", 250, 400);
                 return null;
             }
+
+            String pidCpuUsage = null;
+            while(cpuUsageReader.hasNextLine()){
+                pidCpuUsage = cpuUsageReader.nextLine();
+                if(pidCpuUsage.contains("PercentProcessorTime=")){
+                    break;
+                }
+            }
+
             for(int indexOf; reader.hasNextLine();) {
                 lines.add(reader.nextLine());
 
@@ -104,9 +118,12 @@ public class ProcessOperations {
                         lines.set(k, lines.get(k).substring(indexOf).trim());
 
                         this.monitoringProcesses.get(pid).setMemUsage(memUsage);
+                        this.monitoringProcesses.get(pid).setPercentCpuUsage(Integer.parseInt(pidCpuUsage.substring(pidCpuUsage.indexOf("=")+1)));
                     }
                 }
             }
+            cpuUsageReader.close();
+            reader.close();
         }
         return monitoringProcesses;
     }

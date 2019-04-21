@@ -154,7 +154,7 @@ public class ProcessMonitorApp extends Application {
                     String appendText = "";
                     for(ProcessInfo process : p.updateProcessUsage().values()){
                         appendText += "Process Name: " + process.getImageName() + "\nPID: " + process.getPid() + "\n" +
-                                "Memory Usage: " + process.getMemUsage() + " K\n\n";
+                                "Memory Usage: " + process.getMemUsage() + " K\nCPU Usage: " + process.getPercentCpuUsage() + "\n\n";
                     }
                     displayText.setText(appendText);
                     primaryStage.setScene(runningProcessesScene);

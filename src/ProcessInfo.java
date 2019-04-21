@@ -5,6 +5,7 @@ public class ProcessInfo {
     private String sessionName;
     private int sessionNum;
     private int memUsage;
+    private int percentCpuUsage;
 
     public ProcessInfo(String imageName, int pid, String sessionName, int sessionNum, int memUsage) {
         this.imageName = imageName;
@@ -52,5 +53,13 @@ public class ProcessInfo {
 
     public void setMemUsage(int memUsage) {
         this.memUsage = memUsage;
+    }
+
+    public int getPercentCpuUsage() {
+        return percentCpuUsage;
+    }
+
+    public void setPercentCpuUsage(int percentCpuUsage) {
+        this.percentCpuUsage = percentCpuUsage;
     }
 }
