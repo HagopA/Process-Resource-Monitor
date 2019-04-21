@@ -143,29 +143,35 @@ public class ProcessMonitorApp extends Application {
         });
 
         displayCpuAndMemoryButton.setOnAction(e -> {
-            Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), c -> {
-                Text displayText = new Text();
-                GridPane cpuAndMemUsageGrid = new GridPane();
-                cpuAndMemUsageGrid.add(displayText, 0 ,0);
-                cpuAndMemUsageGrid.add(backButton, 0, 1);
-                ScrollPane processesScrollPane = new ScrollPane(cpuAndMemUsageGrid);
-                Scene runningProcessesScene = new Scene(processesScrollPane, WINDOW_WIDTH, WINDOW_HEIGHT);
-                String appendText = "";
-                for(ProcessInfo process : p.updateProcessUsage().values()){
-                    appendText += "Process Name: " + process.getImageName() + "\nPID: " + process.getPid() + "\n" +
-                            "Memory Usage: " + process.getMemUsage() + " K\n\n";
-                }
-                displayText.setText(appendText);
-                primaryStage.setScene(runningProcessesScene);
-            }));
+            if(p.getMonitoringProcesses() != null && p.getMonitoringProcesses().size() > 0) {
+                Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), c -> {
+                    Text displayText = new Text();
+                    GridPane cpuAndMemUsageGrid = new GridPane();
+                    cpuAndMemUsageGrid.add(displayText, 0 ,0);
+                    cpuAndMemUsageGrid.add(backButton, 0, 1);
+                    ScrollPane processesScrollPane = new ScrollPane(cpuAndMemUsageGrid);
+                    Scene runningProcessesScene = new Scene(processesScrollPane, WINDOW_WIDTH, WINDOW_HEIGHT);
+                    String appendText = "";
+                    for(ProcessInfo process : p.updateProcessUsage().values()){
+                        appendText += "Process Name: " + process.getImageName() + "\nPID: " + process.getPid() + "\n" +
+                                "Memory Usage: " + process.getMemUsage() + " K\n\n";
+                    }
+                    displayText.setText(appendText);
+                    primaryStage.setScene(runningProcessesScene);
+                }));
 
-            timeline.setCycleCount(Animation.INDEFINITE);
-            timeline.play();
+                timeline.setCycleCount(Animation.INDEFINITE);
+                timeline.play();
 
-            backButton.setOnAction(s -> {
-                timeline.stop();
-                primaryStage.setScene(mainWindowScene);
-            });
+                backButton.setOnAction(s -> {
+                    timeline.stop();
+                    primaryStage.setScene(mainWindowScene);
+                });
+            }
+            else{
+                String message = "Please select a process id to monitor.\nNothing is currently being monitored.";
+                AlertBox.displayAlertBox("No processes being monitored", message, WINDOW_HEIGHT/2, WINDOW_WIDTH/2);
+            }
         });
 
         primaryStage.show();
