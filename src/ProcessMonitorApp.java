@@ -29,6 +29,7 @@ public class ProcessMonitorApp extends Application {
         final int WINDOW_HEIGHT = 500;
         final int SPACING_BETWEEN_ELEMENTS = 10;
         final int BUTTON_WIDTH = 320;
+        final int REFRESH_DURATION = 1;
 
         final Button runningProcessesButton = new Button("View running processes");
         final Button selectProcessToMonitorButton = new Button("Select Process to Start Monitoring");
@@ -144,7 +145,7 @@ public class ProcessMonitorApp extends Application {
 
         displayCpuAndMemoryButton.setOnAction(e -> {
             if(p.getMonitoringProcesses() != null && p.getMonitoringProcesses().size() > 0) {
-                Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), c -> {
+                Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(REFRESH_DURATION), c -> {
                     Text displayText = new Text();
                     GridPane cpuAndMemUsageGrid = new GridPane();
                     cpuAndMemUsageGrid.add(displayText, 0 ,0);
