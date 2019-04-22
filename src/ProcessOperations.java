@@ -59,13 +59,12 @@ public class ProcessOperations {
 
     public HashMap<Integer, ProcessInfo> updateProcessUsage(){
 
-        ArrayList<String> lines = new ArrayList<>();
-        int pid;
-        int memUsage;
-        int cpuUsage;
-
         for(ProcessInfo aProcess : this.monitoringProcesses.values()){
 
+            ArrayList<String> lines = new ArrayList<>();
+            int pid;
+            int memUsage;
+            int cpuUsage;
             Scanner reader;
             Process processToUpdate;
             Process cpuUsageProcess;
