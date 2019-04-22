@@ -98,8 +98,9 @@ public class ProcessMonitorApp extends Application {
                         AlertBox.displayAlertBox(SUCCESS_ALERT_BOX_TITLE, successMessage, WINDOW_HEIGHT/2, WINDOW_WIDTH/2);
                     }
                     else{
-                        String errorMessage = "Error: the PID \"" + userInput.getText() + "\" cannot be monitored. Please" +
-                                "\nmake sure that the PID is currently running.\nYou can verify the running processes\n" +
+                        String errorMessage = "Error: the PID \"" + userInput.getText() + "\" cannot be monitored. Either you have\nalready added it to the " +
+                                "monitoring processes list, or it is not running.\nPlease" +
+                                " make sure that the PID is currently running. You can verify\nthe running processes " +
                                 "through the main program\nwindow by clicking on \"View running processes\".";
                         AlertBox.displayAlertBox(ERROR_ALERT_BOX_TITLE, errorMessage, WINDOW_HEIGHT/2, WINDOW_WIDTH/2);
                     }
@@ -152,12 +153,15 @@ public class ProcessMonitorApp extends Application {
                     cpuAndMemUsageGrid.add(backButton, 0, 1);
                     ScrollPane processesScrollPane = new ScrollPane(cpuAndMemUsageGrid);
                     Scene runningProcessesScene = new Scene(processesScrollPane, WINDOW_WIDTH, WINDOW_HEIGHT);
-                    String appendText = "";
+                    final StringBuilder appendText = new StringBuilder();
                     for(ProcessInfo process : p.updateProcessUsage().values()){
-                        appendText += "Process Name: " + process.getImageName() + "\nPID: " + process.getPid() + "\n" +
-                                "Memory Usage: " + process.getMemUsage() + " K\nCPU Usage: " + process.getPercentCpuUsage() + "\n\n";
+                        new Thread(() -> {
+                            appendText.append("Process Name: " + process.getImageName() + "\nPID: " + process.getPid() + "\n" +
+                                    "Memory Usage: " + process.getMemUsage() + " K\nCPU Usage: " + process.getPercentCpuUsage() + "\n\n");
+                            displayText.setText(appendText.toString());
+                            System.out.println(Thread.currentThread().getId());
+                        }).start();
                     }
-                    displayText.setText(appendText);
                     primaryStage.setScene(runningProcessesScene);
                 }));
 
