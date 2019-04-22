@@ -27,7 +27,7 @@ public class ProcessOperations {
 
         this.updateRunningProcessList();
 
-        if(this.monitoringProcesses != null && this.monitoringProcesses.containsKey(pid)){
+        if(this.monitoringProcesses != null && this.monitoringProcesses.containsKey(pid) || !this.runningProcessesMap.containsKey(pid)){
             return false;
         }
 

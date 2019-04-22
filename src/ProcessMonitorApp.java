@@ -156,10 +156,11 @@ public class ProcessMonitorApp extends Application {
                     final StringBuilder appendText = new StringBuilder();
                     for(ProcessInfo process : p.updateProcessUsage().values()){
                         new Thread(() -> {
-                            appendText.append("Process Name: " + process.getImageName() + "\nPID: " + process.getPid() + "\n" +
-                                    "Memory Usage: " + process.getMemUsage() + " K\nCPU Usage: " + process.getPercentCpuUsage() + "\n\n");
-                            displayText.setText(appendText.toString());
-                            System.out.println(Thread.currentThread().getId());
+                            synchronized (this){
+                                appendText.append("Process Name: " + process.getImageName() + "\nPID: " + process.getPid() + "\n" +
+                                        "Memory Usage: " + process.getMemUsage() + " K\nCPU Usage: " + process.getPercentCpuUsage() + "\n\n");
+                                displayText.setText(appendText.toString());
+                            }
                         }).start();
                     }
                     primaryStage.setScene(runningProcessesScene);
