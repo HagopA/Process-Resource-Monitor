@@ -90,36 +90,35 @@ public class ProcessOperations {
                     break;
                 }
             }
-
+            int k = 0;
             while(reader.hasNextLine()) {
                 lines.add(reader.nextLine());
                 int indexOf;
 
-                for(int k = 0; k < lines.size(); k++){
-                    if(lines.get(k).length() > 1){
-                        indexOf = lines.get(k).indexOf("  ");
-                        lines.set(k, lines.get(k).substring(indexOf).trim());
+                if(lines.get(k).length() > 1){
+                    indexOf = lines.get(k).indexOf("  ");
+                    lines.set(k, lines.get(k).substring(indexOf).trim());
 
-                        indexOf = lines.get(k).indexOf(" ");
-                        pid = Integer.parseInt(lines.get(k).substring(0, indexOf));
-                        lines.set(k, lines.get(k).substring(indexOf).trim());
+                    indexOf = lines.get(k).indexOf(" ");
+                    pid = Integer.parseInt(lines.get(k).substring(0, indexOf));
+                    lines.set(k, lines.get(k).substring(indexOf).trim());
 
-                        indexOf = lines.get(k).indexOf("  ");
-                        lines.set(k, lines.get(k).substring(indexOf).trim());
+                    indexOf = lines.get(k).indexOf("  ");
+                    lines.set(k, lines.get(k).substring(indexOf).trim());
 
-                        indexOf = lines.get(k).indexOf("  ");
-                        lines.set(k, lines.get(k).substring(indexOf).trim());
+                    indexOf = lines.get(k).indexOf("  ");
+                    lines.set(k, lines.get(k).substring(indexOf).trim());
 
-                        indexOf = lines.get(k).indexOf(" ");
-                        memUsage = Integer.parseInt(lines.get(k).substring(0, indexOf).replace(",", ""));
-                        lines.set(k, lines.get(k).substring(indexOf).trim());
+                    indexOf = lines.get(k).indexOf(" ");
+                    memUsage = Integer.parseInt(lines.get(k).substring(0, indexOf).replace(",", ""));
+                    lines.set(k, lines.get(k).substring(indexOf).trim());
 
-                        cpuUsage = Integer.parseInt(pidCpuUsage.substring(pidCpuUsage.indexOf("=")+1));
+                    cpuUsage = Integer.parseInt(pidCpuUsage.substring(pidCpuUsage.indexOf("=")+1));
 
-                        this.monitoringProcesses.get(pid).setMemUsage(memUsage);
-                        this.monitoringProcesses.get(pid).setPercentCpuUsage(cpuUsage);
-                    }
+                    this.monitoringProcesses.get(pid).setMemUsage(memUsage);
+                    this.monitoringProcesses.get(pid).setPercentCpuUsage(cpuUsage);
                 }
+                k++;
             }
             cpuUsageReader.close();
             reader.close();
